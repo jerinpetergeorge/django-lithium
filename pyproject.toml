@@ -10,10 +10,44 @@ dependencies = [
     "gunicorn ~=23.0",
     "psycopg[binary] ~=3.3",
     "whitenoise ~=6.11",
+
 ]
 
 [dependency-groups]
 dev = [
     "typing_extensions ~=4.15",
-    "ipython>=9.8.0",
+    "ipython>=9.8",
+    "ruff~=0.14",
 ]
+
+# ------------------------------------------ #
+# ------------------ Ruff ------------------ #
+# ------------------------------------------ #
+[tool.ruff]
+line-length = 119
+exclude = ["migrations"]
+fix = true
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+select = [
+    "C4",  # flake8-comprehensions
+    "E",   # pycodestyle - Errors
+    "F",   # Pyflakes
+    "I",   # isort
+    "SIM", # flake8-simplify (SIM)
+    "T20", # flake8-print
+    "UP",  # pyupgrade
+    "W",   # pycodestyle - Warnings
+]
+
+ignore = []
+[tool.ruff.lint.per-file-ignores]
+# https://docs.astral.sh/ruff/settings/#per-file-ignores
+"config/settings/*" = ["F405"]
+
+[tool.ruff.lint.isort]
+force-wrap-aliases = true
+combine-as-imports = true
+case-sensitive = true
+relative-imports-order = "closest-to-furthest"
