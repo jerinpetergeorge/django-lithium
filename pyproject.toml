@@ -10,14 +10,14 @@ dependencies = [
     "gunicorn ~=23.0",
     "psycopg[binary] ~=3.3",
     "whitenoise ~=6.11",
-
 ]
 
 [dependency-groups]
 dev = [
     "typing_extensions ~=4.15",
-    "ipython>=9.8",
+    "ipython~=9.8",
     "ruff~=0.14",
+    "django-dev-superuser~=0.2.0",
 ]
 
 # ------------------------------------------ #
@@ -31,14 +31,14 @@ fix = true
 [tool.ruff.lint]
 fixable = ["ALL"]
 select = [
-    "C4",  # flake8-comprehensions
-    "E",   # pycodestyle - Errors
-    "F",   # Pyflakes
-    "I",   # isort
+    "C4", # flake8-comprehensions
+    "E", # pycodestyle - Errors
+    "F", # Pyflakes
+    "I", # isort
     "SIM", # flake8-simplify (SIM)
     "T20", # flake8-print
-    "UP",  # pyupgrade
-    "W",   # pycodestyle - Warnings
+    "UP", # pyupgrade
+    "W", # pycodestyle - Warnings
 ]
 
 ignore = []

@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5",
     "debug_toolbar",
+    "django_su",
+    "django_extensions",
     # Local
     "accounts",
     "pages",
@@ -176,7 +178,7 @@ DEFAULT_FROM_EMAIL = "root@localhost"
 INTERNAL_IPS = ["127.0.0.1"]
 
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#substituting-a-custom-user-model
-AUTH_USER_MODEL = "accounts.CustomUser"
+AUTH_USER_MODEL = "accounts.User"
 
 # django-allauth config
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
@@ -204,3 +206,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",  # Default Django dev server
     "http://127.0.0.1:8000",  # Alternative local address
 ]
+
+DJANGO_SU_CONFIG = {
+    "USERNAME": "jerin@admin.com",
+    "PASSWORD": "passme123@#$",
+    "EXTRA_ARGS": {"full_name": "Jerin Peter George"},
+}
