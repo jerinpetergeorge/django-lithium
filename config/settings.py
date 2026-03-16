@@ -1,36 +1,48 @@
 from pathlib import Path
 
+from environ import Env
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ------------------------------------------ #
+# -------- django-environ Settings --------- #
+# ------------------------------------------ #
+env = Env()
+ENV_FILE_LOC = env("ENV_FILE_LOC", default=".env-dir/.env")
+env.read_env(env_file=ENV_FILE_LOC)
 
+# ------------------------------------------ #
+# ---------- Django Core Settings ---------- #
+# ------------------------------------------ #
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-0peo@#x9jur3!h$ryje!$879xww8y1y66jx!%*#ymhg&jkozs2"
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-CHANGE_ME")
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
-
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
 # Application definition
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = [
+CORE_DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    # Third-party
+]
+
+THIRD_PARTY_APPS = [
+    "whitenoise.runserver_nostatic",
     "allauth",
     "allauth.account",
     "crispy_forms",
@@ -38,9 +50,15 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_su",
     "django_extensions",
-    # Local
+]
+LOCAL_APPS = [
     "accounts",
     "pages",
+]
+INSTALLED_APPS = [
+    *CORE_DJANGO_APPS,
+    *THIRD_PARTY_APPS,
+    *LOCAL_APPS,
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
@@ -81,24 +99,7 @@ TEMPLATES = [
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-# For Docker/PostgreSQL usage uncomment this and comment the DATABASES config above
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "postgres",
-#         "USER": "postgres",
-#         "PASSWORD": "postgres",
-#         "HOST": "db",  # set in docker-compose.yml
-#         "PORT": 5432,  # default postgres port
-#     }
-# }
+DATABASES = {"default": env.db("DATABASE_URL")}
 
 # Password validation
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
@@ -116,7 +117,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
@@ -161,26 +161,15 @@ STORAGES = {
 # https://docs.djangoproject.com/en/stable/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# django-crispy-forms
-# https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
-
 # https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#default-from-email
 DEFAULT_FROM_EMAIL = "root@localhost"
 
-# django-debug-toolbar
-# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
-# https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
-INTERNAL_IPS = ["127.0.0.1"]
-
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#substituting-a-custom-user-model
 AUTH_USER_MODEL = "accounts.User"
 
-# django-allauth config
 # https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 
@@ -195,11 +184,6 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 )
-# https://django-allauth.readthedocs.io/en/latest/configuration.html
-ACCOUNT_SESSION_REMEMBER = True
-ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_UNIQUE_EMAIL = True
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
 CSRF_TRUSTED_ORIGINS = [
@@ -207,8 +191,36 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",  # Alternative local address
 ]
 
+# ------------------------------------------ #
+# -------- django-allauth Settings --------- #
+# ------------------------------------------ #
+# https://django-allauth.readthedocs.io/en/latest/configuration.html
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_UNIQUE_EMAIL = True
+
+# ------------------------------------------ #
+# ----- django-dev-superuser Settings ------ #
+# ------------------------------------------ #
 DJANGO_SU_CONFIG = {
-    "USERNAME": "jerin@admin.com",
-    "PASSWORD": "passme123@#$",
-    "EXTRA_ARGS": {"full_name": "Jerin Peter George"},
+    "USERNAME": env("DJANGO_SU_USERNAME", default="admin"),
+    "PASSWORD": env("DJANGO_SU_PASSWORD", default="admin"),
+    "EXTRA_ARGS": {
+        "full_name": env("DJANGO_SU_FULL_NAME", default="Admin User"),
+    },
 }
+
+# ------------------------------------------ #
+# ------ django-crispy-forms Settings ------ #
+# ------------------------------------------ #
+# https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+# ------------------------------------------ #
+# ----- django-debug-toolbar Settings ------ #
+# ------------------------------------------ #
+# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
+# https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
+INTERNAL_IPS = env.list("INTERNAL_IPS", default=["127.0.0.1"])
